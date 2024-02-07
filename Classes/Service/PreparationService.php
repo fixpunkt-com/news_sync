@@ -2,7 +2,7 @@
 
 namespace GeorgRinger\NewsSync\Service;
 
-use GeorgRinger\NewsSync\Utlity\ConnectionUtility;
+use GeorgRinger\NewsSync\Utility\ConnectionUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\StringUtility;
 
@@ -61,8 +61,12 @@ class PreparationService
     protected function checkTablePrefix()
     {
         $tables = $this->connectionUtility->getTables('sync_sys_category');
+        $tables = array_filter($tables, function($table) {
+            return str_starts_with($table, $this->prefix);
+        });
+
         foreach ($tables as $tableName) {
-            if (StringUtility::beginsWith($tableName, $this->prefix)) {
+            if (str_starts_with($tableName, $this->prefix)) {
                 $this->addResponse(sprintf('Prefix: %s: ok', $tableName));
             } else {
                 $this->addResponse(sprintf('Prefix: %s: no prefix', $tableName), 1);

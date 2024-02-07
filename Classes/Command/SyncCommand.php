@@ -17,13 +17,7 @@ class SyncCommand extends Command
         $this->setDescription('Sync news');
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return void
-     * @throws \InvalidArgumentException
-     */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $prefix = 'sync_';
         $io = new SymfonyStyle($input, $output);
@@ -40,12 +34,18 @@ class SyncCommand extends Command
         $io->title('Starting import....');
         if ($status) {
             $syncService = GeneralUtility::makeInstance(SyncService::class, $prefix);
-            $syncService->run();
+            echo "STARTING";
+            try {
+                $syncService->run();
+            }catch(\Exception $e) {
+                echo $e->getTraceAsString();
+            }
+            echo "DONE";
+            return Command::SUCCESS;
         } else {
             $io->error('Cant be started, see above,');
+            return Command::FAILURE;
         }
-
-
     }
 
 

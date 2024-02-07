@@ -1,0 +1,20 @@
+{
+  "name": "fixpunkt/news-sync",
+  "type": "typo3-cms-extension",
+  "description": "",
+  "authors": [
+  ],
+  "require": {
+    "symfony/process": "*"
+  },
+  "autoload": {
+    "psr-4": {
+        "GeorgRinger\\NewsSync\\": "Classes/"
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "news_sync"
+    }
+  }
+} 

@@ -1,6 +1,6 @@
 <?php
 
-namespace GeorgRinger\NewsSync\Utlity;
+namespace GeorgRinger\NewsSync\Utility;
 
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -77,6 +77,7 @@ class ConnectionUtility
 
     public function insert(string $tableName, array $fields): int
     {
+        echo $tableName . ": " . join(",", $fields);
         return $this->getConnectionForTable($tableName)
             ->insert($tableName, $fields);
     }
@@ -95,14 +96,17 @@ class ConnectionUtility
 
     public function addImportColumn(string $tableName, string $fieldName)
     {
+        echo $tableName . ": " . $fieldName;
         $connection = $this->getConnectionForTable($tableName);
         $connection->exec('ALTER TABLE ' . $tableName . ' ADD COLUMN ' . $fieldName . ' INT DEFAULT 0 NOT NULL;');
     }
 
     public function copyValueFromColumnToColumn(string $tableName, string $from, string $to)
     {
+        echo $tableName . ": " . $from . " -> " . $to;
         $connection = $this->getConnectionForTable($tableName);
-        $connection->exec('UPDATE ' . $tableName . ' SET ' . $to . '=' . $from . ';');
+        $connection->executeStatement('UPDATE ' . $tableName . ' SET ' . $to . '=' . $from . ';');
+        echo " worked\n";
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace GeorgRinger\NewsSync\Service;
 
-use GeorgRinger\NewsSync\Utlity\ConnectionUtility;
+use GeorgRinger\NewsSync\Utility\ConnectionUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SyncService
@@ -66,6 +66,8 @@ class SyncService
 
             $columnsOfTarget = $targetConnection->getSchemaManager()->listTableColumns($tableName);
 
+            unset($columnsOfTarget['related_links']);
+
             $toBeImportedRows = $this->connectionUtility->getAllFromTables($this->prefix . $tableName);
 
             foreach ($toBeImportedRows as $toBeImportedRow) {
@@ -79,7 +81,7 @@ class SyncService
                 }
                 $possibleTargetRow = $this->getPossibleImportRow($targetConnection, $tableName, $where);
 
-                if ($possibleTargetRow['uid']) {
+                if (is_array($possibleTargetRow) && key_exists('uid', $possibleTargetRow)) {
                     $targetConnection->update($tableName, $newRow, ['uid' => $possibleTargetRow['uid']]);
                 } else {
                     $targetConnection->insert($tableName, $newRow);
@@ -273,6 +275,7 @@ class SyncService
             ->where(
                 ...$whereClause
             )->execute()->fetch();
+
         return $possibleTargetRow;
     }
 

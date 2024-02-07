@@ -6,6 +6,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -16,14 +17,9 @@ class SyncImagesCommand extends Command
         $this->setDescription('Sync news images');
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return void
-     * @throws \InvalidArgumentException
-     */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        var_dump("HI");
 
         $rows = $this->getAllRows();
         $progressBar = new ProgressBar($output, count($rows));
@@ -31,6 +27,7 @@ class SyncImagesCommand extends Command
         $progressBar->start();
 
         foreach ($rows as $row) {
+            var_dump($row);
             $this->syncSingleFile($row);
 
             $progressBar->advance();
@@ -38,14 +35,19 @@ class SyncImagesCommand extends Command
 
         $progressBar->finish();
         $output->write('');
+
+        return Command::SUCCESS;
     }
 
     protected function syncSingleFile(array $sysFileRow)
     {
-        $filePath = 'content' . $sysFileRow['identifier'];
-        $localFilePath = PATH_site . $filePath;
-        $domain = '';
-        die('no domain yet set, not currently configurable, do it in SyncImagesCommand, sorry');
+        // the storage option could be used to identify the full path which isnt always in fileadmin/.
+        $filePath = 'fileadmin' . $sysFileRow['identifier'];
+        $localFilePath = Environment::getPublicPath() . '/' . $filePath;
+
+        // Lets set this in the ext_conf_template.txt
+        $domain = 'https://bwinf.de/';
+
         $remoteFilePath = $domain . $filePath;
         if (is_file($localFilePath)) {
             return;
@@ -70,12 +72,10 @@ class SyncImagesCommand extends Command
         $qb->getRestrictions()->removeAll();
 
         $rows = $qb->select('*')
-            ->from('sys_file')
-            ->where(
-                $qb->expr()->eq('storage', $qb->createNamedParameter(2, \PDO::PARAM_INT))
-            )
-            ->execute()
-            ->fetchAll();
+            ->from('sync_sys_file') // we list all files from old db to download them
+            ->executeQuery()
+            ->fetchAllAssociative();
+
         return $rows;
     }
 

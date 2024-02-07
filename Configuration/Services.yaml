@@ -1,0 +1,25 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  GeorgRinger\NewsSync\:
+    resource: '../Classes/*'
+    exclude: '../Classes/Domain/Model/*'
+
+  GeorgRinger\NewsSync\Command\SyncCommand:
+    tags:
+      - name: console.command
+        command: 'newssync:sync'
+        description: 'sync the news from the imported db into the used database'
+  GeorgRinger\NewsSync\Command\ImportCommand:
+    tags:
+      - name: console.command
+        command: 'newssync:import'
+        description: 'Run this first to import a the DB of the to be imported news (may contain complete db)'
+  GeorgRinger\NewsSync\Command\SyncImagesCommand:
+    tags:
+      - name: console.command
+        command: 'newssync:images'
+        description: 'download all images that are needed by the imported news'
